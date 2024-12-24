@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snow Effect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <section class="sky">
+        <div id="main">
+            <h1 id="title">Lohen's Christmas Cards for Friends and Family</h1>
+            <p id="description">Built using NodeJS and hosted on AWS </p>
+        </div>
+    </section>
+</body>
+<!-- Snow animation by: https://codepen.io/adamlindqvist/pen/EaPeJg -->
+<style>
+    body, html {
+        overflow: hidden;
+        margin: 0;
+        height: 100%;
+        font-family: 'Lato', sans-serif;
+        font-weight: 700;
+        font-size: 30px;
+        text-transform: uppercase;
+        color: #FFF;
+    }
+
+    .sky {
+        height: 100vh;
+        background-color: #34A65F; /* Set your desired solid background color */
+        background-image: url('/images/background.png');
+        background-size: cover; /* Make the image cover the entire section */
+        background-position: center; /* Center the image */
+        background-repeat: no-repeat; /* Prevent tiling */
+        position: relative;
+    }
+
+    canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    #main {
+        display: flex;
+        height:100%;
+        width:100%;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    #main h1 {
+        font-family: "Mountains of Christmas", serif;
+        font-weight: 700;
+        font-style: normal;
+        -webkit-text-stroke-width: 1px;
+        -webkit-text-stroke-color: black;
+    }
+
+    #main p {
+        font-family: "Mountains of Christmas", serif;
+        font-weight: 700;
+        font-style: normal;
+        -webkit-text-stroke-width: 1px;
+        -webkit-text-stroke-color: black;
+    }
+
+</style>
+<script>
+(function () {
+
+var COUNT = 150;
+var masthead = document.querySelector('.sky');
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+var width = masthead.clientWidth;
+var height = masthead.clientHeight;
+var i = 0;
+var active = false;
+
+function onResize() {
+  width = masthead.clientWidth;
+  height = masthead.clientHeight;
+  canvas.width = width;
+  canvas.height = height;
+  ctx.fillStyle = '#FFF';
+
+  var wasActive = active;
+  active = width > 600;
+
+  if (!wasActive && active)
+    requestAnimFrame(update);
+}
+
+var Snowflake = function () {
+  this.x = 0;
+  this.y = 0;
+  this.vy = 0;
+  this.vx = 0;
+  this.r = 0;
+
+  this.reset();
+}
+
+Snowflake.prototype.reset = function() {
+  this.x = Math.random() * width;
+  this.y = Math.random() * -height;
+  this.vy = 1 + Math.random() * 3;
+  this.vx = 0.5 - Math.random();
+  this.r = 1 + Math.random() * 2;
+  this.o = 0.5 + Math.random() * 0.5;
+}
+
+canvas.style.position = 'absolute';
+canvas.style.left = canvas.style.top = '0';
+
+var snowflakes = [], snowflake;
+for (i = 0; i < COUNT; i++) {
+  snowflake = new Snowflake();
+  snowflake.reset();
+  snowflakes.push(snowflake);
+}
+
+function update() {
+
+  ctx.clearRect(0, 0, width, height);
+
+  if (!active)
+    return;
+
+  for (i = 0; i < COUNT; i++) {
+    snowflake = snowflakes[i];
+    snowflake.y += snowflake.vy;
+    snowflake.x += snowflake.vx;
+
+    ctx.globalAlpha = snowflake.o;
+    ctx.beginPath();
+    ctx.arc(snowflake.x, snowflake.y, snowflake.r, 0, Math.PI * 2, false);
+    ctx.closePath();
+    ctx.fill();
+
+    if (snowflake.y > height) {
+      snowflake.reset();
+    }
+  }
+
+  requestAnimFrame(update);
+}
+
+// shim layer with setTimeout fallback
+window.requestAnimFrame = (function(){
+  return  window.requestAnimationFrame       ||
+          window.webkitRequestAnimationFrame ||
+          window.mozRequestAnimationFrame    ||
+          function( callback ){
+            window.setTimeout(callback, 1000 / 60);
+          };
+})();
+
+onResize();
+window.addEventListener('resize', onResize, false);
+window.onload = function () {
+  onResize();
+};
+
+masthead.appendChild(canvas);
+})();
+</script>
+</html>
